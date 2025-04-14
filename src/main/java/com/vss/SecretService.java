@@ -1,6 +1,7 @@
 package main.java.com.vss;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 
 public class SecretService {
     private static SecretService instance;
@@ -13,6 +14,21 @@ public class SecretService {
     }
 
     private BufferedImage image;
+    private Secret secret;
+
+    private BufferedImage convertToGrayscale(BufferedImage image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+
+        ColorConvertOp op = new ColorConvertOp(
+                image.getColorModel().getColorSpace(),
+                newImage.getColorModel().getColorSpace(),
+                null
+        );
+        return op.filter(image, newImage);
+    }
+
 
     public void uploadImage(BufferedImage image) {
         this.image = image;
@@ -26,6 +42,11 @@ public class SecretService {
         }
 
         System.out.println("Processing image...");
+
+//        image = this.convertToGrayscale(image);
+
+        Secret secret = new Secret(image);
+
 
     }
 
