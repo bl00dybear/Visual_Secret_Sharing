@@ -33,12 +33,12 @@ public abstract class ImageData {
             }
         }
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                System.out.print(matrix[y][x][1] + " ");
-            }
-            System.out.println();
-        }
+//        for (int y = 0; y < height; y++) {
+//            for (int x = 0; x < width; x++) {
+//                System.out.print(matrix[y][x][1] + " ");
+//            }
+//            System.out.println();
+//        }
 
         this.image = matrix;
     }

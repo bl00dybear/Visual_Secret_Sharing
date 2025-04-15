@@ -16,6 +16,8 @@ public class SecretService {
     private BufferedImage image;
     private Secret secret;
 
+    public static Boolean minAndTotalNumberOfShares = false;
+
     private BufferedImage convertToGrayscale(BufferedImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -27,6 +29,10 @@ public class SecretService {
                 null
         );
         return op.filter(image, newImage);
+    }
+
+    public Boolean isImageUploaded(){
+        return this.image != null;
     }
 
 

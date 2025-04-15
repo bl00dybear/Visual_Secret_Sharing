@@ -8,11 +8,15 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 public class MainController {
 
     private static MainController controller;
     private final SecretService service;
+
+    private boolean isAuthenticated = false;
+    private String currentUser = null;
 
 
     public MainController() {
@@ -50,5 +54,22 @@ public class MainController {
             System.out.println("No file selected.");
         }
 
+    }
+
+    public boolean authenticate(String username, String password) {
+        return Objects.equals(username, "admin") && Objects.equals(password, "admin");
+    }
+
+    public boolean createAccount(String username, String password) {
+        if (false) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void logout() {
+        isAuthenticated = false;
+        currentUser = null;
     }
 }
