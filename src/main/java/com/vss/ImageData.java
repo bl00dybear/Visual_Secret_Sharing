@@ -12,13 +12,9 @@ public abstract class ImageData {
 //    public BufferedImage toBufferedImage(){}
 //    public void fromBufferedImage(BufferedImage image){}
 
-    ImageData(BufferedImage image) {
+    public void setImageMatrix(BufferedImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
-        int[][][] matrix = new int[height][width][3];
-
-        System.out.println(width + " " + height);
-
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int rgb = image.getRGB(x, y);
@@ -27,18 +23,27 @@ public abstract class ImageData {
                 int green = (rgb >> 8) & 0xFF;
                 int blue = rgb & 0xFF;
 
-                matrix[y][x][0] = red;
-                matrix[y][x][1] = green;
-                matrix[y][x][2] = blue;
+                this.image[y][x][0] = red;
+                this.image[y][x][1] = green;
+                this.image[y][x][2] = blue;
             }
         }
+    }
 
-//        for (int y = 0; y < height; y++) {
-//            for (int x = 0; x < width; x++) {
-//                System.out.print(matrix[y][x][1] + " ");
-//            }
-//            System.out.println();
-//        }
+    ImageData(BufferedImage image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int[][][] matrix = new int[height][width][3];
+
+        System.out.println(width + " " + height);
+
+        this.image = matrix;
+    }
+
+    ImageData(int width, int height) {
+        int[][][] matrix = new int[height][width][3];
+
+        System.out.println(width + " " + height);
 
         this.image = matrix;
     }

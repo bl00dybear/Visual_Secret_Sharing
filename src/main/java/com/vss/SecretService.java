@@ -2,10 +2,27 @@ package main.java.com.vss;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
+import java.util.ArrayList;
+import java.util.List;
+
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+
+
 
 public class SecretService {
+    private BufferedImage image;
+    private Secret secret;
+    private List<Share> shares;
+
     private static SecretService instance;
-    private SecretService() {}
+    private SecretService() {
+        shares = new ArrayList<>();
+    }
     public static SecretService getInstance() {
         if (instance == null) {
             instance = new SecretService();
@@ -13,8 +30,7 @@ public class SecretService {
         return instance;
     }
 
-    private BufferedImage image;
-    private Secret secret;
+
 
     public static Boolean minAndTotalNumberOfShares = false;
 
@@ -41,19 +57,35 @@ public class SecretService {
         System.out.println("Image loaded.");
     }
 
-    public void processImage() {
+
+    public List<Image> processImage(Integer minimumNumberOfShares, Integer totalNumberOfShares) throws IOException {
+
+        List<Image> fxImages = new ArrayList<>();
+
         if (image == null) {
             System.out.println("No image loaded!");
-            return;
+            return fxImages;
         }
 
         System.out.println("Processing image...");
 
-//        image = this.convertToGrayscale(image);
-
         Secret secret = new Secret(image);
+        secret.setImageMatrix(image);
+        secret.setMinimumNumberOfShares(minimumNumberOfShares);
+        secret.setTotalNumberOfShares(totalNumberOfShares);
 
+        int width = image.getWidth();
+        int height = image.getHeight();
 
+        shares = secret.getShares(width, height);
+
+        for(int i = 0; i < shares.size(); i++) {
+//            shares.get(i).saveShareAsImage(i,"shares");
+            BufferedImage shareImage = shares.get(i).getShareImage(width, height);
+            fxImages.add(SwingFXUtils.toFXImage(shareImage, null));
+        }
+
+        return fxImages;
     }
 
 }

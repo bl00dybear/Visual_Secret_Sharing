@@ -1,6 +1,6 @@
 package main.java.com.vss;
 
-
+import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -14,46 +14,44 @@ public class MainController {
 
     private static MainController controller;
     private final SecretService service;
+    private App appReference;
 
     private boolean isAuthenticated = false;
     private String currentUser = null;
 
-
-    public MainController() {
+    private MainController() {
         this.service = SecretService.getInstance();
     }
 
     public static MainController getInstance() {
-        if (controller == null) {
-            controller = new MainController();
-        }
+        if (controller == null) controller = new MainController();
         return controller;
     }
-    public void chooseFile() {
-        System.out.println("Choosing file...");
 
+    public void setAppReference(App app) {
+        this.appReference = app;
+    }
+
+    public void chooseFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Image");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.bmp")
-        );
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.bmp"));
 
         File selectedFile = fileChooser.showOpenDialog(new Stage());
 
         if (selectedFile != null) {
             try {
-                BufferedImage image = ImageIO.read(selectedFile);
-                System.out.println("Image selected: " + selectedFile.getName());
+                BufferedImage img = ImageIO.read(selectedFile);
+                service.uploadImage(img);
 
-                service.uploadImage(image);  // delegare către serviciu
-
+                if (appReference != null) {
+                    Image fxImage = new Image(selectedFile.toURI().toString());
+                    appReference.updateImagePreview(fxImage);
+                }
             } catch (IOException e) {
                 System.err.println("Failed to load image: " + e.getMessage());
             }
-        } else {
-            System.out.println("No file selected.");
         }
-
     }
 
     public boolean authenticate(String username, String password) {
@@ -61,11 +59,7 @@ public class MainController {
     }
 
     public boolean createAccount(String username, String password) {
-        if (false) {
-            return false;
-        }
-
-        return true;
+        return true; // mock logic
     }
 
     public void logout() {

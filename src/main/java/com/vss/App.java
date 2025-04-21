@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.Font;
@@ -12,6 +13,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -20,6 +22,12 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javafx.scene.image.ImageView;
 
 public class App extends Application {
     private final SecretService service = SecretService.getInstance();
@@ -29,8 +37,14 @@ public class App extends Application {
     private PasswordField passwordField;
     private TextField textField1;
     private TextField textField2;
+    private ImageView imagePreview;
+    private ImageView[] sharesPreview;
 
-    private VBox mainContent;
+    private VBox mainContent; // Acum va conține fie login, fie scrollPane cu mainInterface
+    private ScrollPane mainInterfaceScrollPane;
+
+    private List<Image> shares = new ArrayList<>();
+
 
     private static final Text asciiText = new Text("""
                 
@@ -48,9 +62,19 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) {
+        controller.setAppReference(this);
+
         asciiText.setFont(Font.font("Monospaced", 14));
 
+        // Inițializăm mainContent - va conține fie login, fie scrollPane cu mainInterface
         mainContent = new VBox();
+
+        // Inițializăm scrollPane pentru mainInterface (îl vom adăuga când e necesar)
+        mainInterfaceScrollPane = new ScrollPane();
+        mainInterfaceScrollPane.setFitToWidth(true);
+        mainInterfaceScrollPane.setStyle("-fx-background: white; -fx-background-color: white; -fx-background-insets: 0;");
+        mainInterfaceScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        mainInterfaceScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         showLoginInterface();
 
@@ -60,7 +84,7 @@ public class App extends Application {
                 Pos.TOP_CENTER,                     // alignment
                 "-fx-background-color: white",      // style
                 asciiText,
-                mainContent
+                mainContent  // Aici vom schimba între login și mainInterface
         );
 
         Scene scene = new Scene(mainContainer, 1000, 800);
@@ -120,6 +144,10 @@ public class App extends Application {
         );
     }
 
+    public void updateImagePreview(Image image) {
+        imagePreview.setImage(image);
+    }
+
     private VBox createMainAppInterface() {
         this.textField1 = new TextField();
         this.textField2 = new TextField();
@@ -129,8 +157,22 @@ public class App extends Application {
         Button chooseButton = createOperationButton("Choose Image", ()->{controller.chooseFile();});
         Button processButton = createOperationButton("Process Image", ()->{
             if(!this.textField1.getText().isEmpty() && !this.textField2.getText().isEmpty() && service.isImageUploaded()) {
-                service.processImage();
-                System.out.println("aici");
+                try {
+                    Integer minimumNumOfShares = Integer.parseInt(textField2.getText().trim());
+                    Integer totalNumberOfShares = Integer.parseInt(textField1.getText().trim());
+
+                    if(minimumNumOfShares > totalNumberOfShares) {
+                        showAlert("Error", "Minimum number of shares exceeded");
+                    }else {
+                        shares = service.processImage(minimumNumOfShares, totalNumberOfShares);
+                        showMainInterface();
+                    }
+                } catch (NumberFormatException | IOException e) {
+                    showAlert("Error", "Invalid number");
+                    return;
+                }
+
+//                System.out.println("aici");
             }else {
                 showAlert("Error", "Minimum share num and total shares num required");
                 if(!service.isImageUploaded()){
@@ -147,19 +189,71 @@ public class App extends Application {
         VBox inputFieldsContainer = createVBox(totalNumOfShares, minimalNumOfShares);
 
         Button logoutButton = createButton("Logout", e -> handleLogout());
-        HBox topBar = new HBox(logoutButton);
-        topBar.setAlignment(Pos.TOP_RIGHT);
+        HBox bottomBar = new HBox(logoutButton);
+        bottomBar.setAlignment(Pos.BASELINE_RIGHT);
 
-        return createVBox(
-                15.0,
-                new Insets(10, 0, 0, 0),
-                Pos.TOP_CENTER,
-                null,
-                topBar,
-                dropContainer,
-                inputFieldsContainer,
-                processButton
-        );
+        imagePreview = new ImageView();
+        imagePreview.setFitWidth(300); // Setăm o lățime maximă
+        imagePreview.setFitHeight(200); // Setăm o înălțime maximă
+        imagePreview.setPreserveRatio(true); // păstrează proporțiile imaginii
+        imagePreview.setSmooth(true);
+        imagePreview.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1px;");
+
+        Label previewLabel = new Label("Preview:");
+        previewLabel.setFont(Font.font("DejaVu Sans Mono", 14));
+
+        VBox imageContainer = new VBox(10, previewLabel, imagePreview);
+        imageContainer.setAlignment(Pos.CENTER);
+        imageContainer.setPadding(new Insets(20, 0, 20, 0));
+
+        System.out.println("numar de share uri "+shares.size());
+
+        sharesPreview = new ImageView[shares.size()];
+
+        if(!shares.isEmpty()) {
+            for (int i=0;i< shares.size();i+=1) {
+                sharesPreview[i] = new ImageView(shares.get(i));
+
+                sharesPreview[i].setFitWidth(300); // Setăm o lățime maximă
+                sharesPreview[i].setFitHeight(200); // Setăm o înălțime maximă
+                sharesPreview[i].setPreserveRatio(true); // păstrează proporțiile imaginii
+                sharesPreview[i].setSmooth(true);
+                sharesPreview[i].setStyle("-fx-border-color: #cccccc; -fx-border-width: 1px;");
+            }
+
+            VBox sharesContainer = new VBox(10);
+            sharesContainer.getChildren().add(previewLabel);
+            sharesContainer.getChildren().addAll(Arrays.asList(sharesPreview));
+            sharesContainer.setAlignment(Pos.CENTER);
+            sharesContainer.setPadding(new Insets(20, 0, 20, 0));
+
+            return createVBox(
+                    15.0,
+                    new Insets(10, 0, 0, 0),
+                    Pos.TOP_CENTER,
+                    null,
+                    dropContainer,
+                    inputFieldsContainer,
+                    processButton,
+                    sharesContainer,
+                    bottomBar
+            );
+        }
+        else{
+            return createVBox(
+                    15.0,
+                    new Insets(10, 0, 0, 0),
+                    Pos.TOP_CENTER,
+                    null,
+                    dropContainer,
+                    inputFieldsContainer,
+                    processButton,
+                    imageContainer,
+                    bottomBar
+            );
+        }
+
+
     }
 
 
@@ -179,8 +273,14 @@ public class App extends Application {
     private void showMainInterface() {
         mainContent.getChildren().clear();
 
+        // Creăm interfața principală
         VBox mainAppInterface = createMainAppInterface();
-        mainContent.getChildren().add(mainAppInterface);
+
+        // Punem interfața principală în ScrollPane
+        mainInterfaceScrollPane.setContent(mainAppInterface);
+
+        // Adăugăm ScrollPane în mainContent
+        mainContent.getChildren().add(mainInterfaceScrollPane);
     }
 
     private void handleLogin() {
