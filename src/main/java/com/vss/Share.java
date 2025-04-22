@@ -26,8 +26,8 @@ public class Share extends ImageData{
     private void processPixels(int width, int height, int[][][] image,
                                Integer[] coefficients, int shareNum,int minNumShares) {
 
-        for (int x=0; x<width; x++) {
-            for (int y=0; y<height; y++) {
+        for (int x=0; x<height; x++) {
+            for (int y=0; y<width; y++) {
                 for (int z=0; z<3; z++) {
                     coefficients[coefficients.length-1] = image[x][y][z];
                     int xx = polynomialFunction(shareNum,minNumShares,coefficients);
