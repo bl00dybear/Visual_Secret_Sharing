@@ -2,26 +2,21 @@ package main.java.com.vss.view.screens;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
+//import main.java.com.vss.MainController;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-
+import main.java.com.vss.controller.AuthController;
 import main.java.com.vss.view.InterfaceManager;
 import main.java.com.vss.view.components.UIComponents;
-import main.java.com.vss.controller.AuthController;
 
-public class LoginScreen {
+public class MainScreen {
     private final InterfaceManager interfaceManager;
     private final AuthController authController;
-    private final VBox root;
 
-    private TextField usernameField;
-    private PasswordField passwordField;
+    private VBox root;
 
     private static final Text asciiText = new Text("""
                 
@@ -37,7 +32,7 @@ public class LoginScreen {
                                 ░                                                                                              
                 """);
 
-    public LoginScreen(InterfaceManager interfaceManager, AuthController authController) {
+    public MainScreen(InterfaceManager interfaceManager, AuthController authController){
         this.interfaceManager = interfaceManager;
         this.authController = authController;
 
@@ -48,14 +43,10 @@ public class LoginScreen {
 
         root.getChildren().addAll(
                 createTitle(),
-                createLoginBox()
+                createButtonPanel()
         );
-    }
 
-    public VBox getRoot() {
-        return root;
     }
-
 
     private Text createTitle() {
         asciiText.setFont(Font.font("Monospaced", 14));
@@ -63,85 +54,28 @@ public class LoginScreen {
         return asciiText;
     }
 
-    private StackPane createLoginBox() {
-        usernameField = new TextField();
-        usernameField.setPromptText("Username");
-        usernameField.setFont(Font.font("DejaVu Sans Mono", 14));
-        usernameField.setPrefWidth(300);
+    private HBox createButtonPanel(){
+        Button encryptButton = UIComponents.createButton("Encrypt", event->handleEncrypt());
+        Button decryptButton = UIComponents.createButton("Decrypt",event -> handleDecrypt());
 
-        passwordField = new PasswordField();
-        passwordField.setPromptText("Password");
-        passwordField.setFont(Font.font("DejaVu Sans Mono", 14));
-        passwordField.setPrefWidth(300);
-
-        Button loginButton = UIComponents.createButton("Login", event -> handleLogin());
-        Button createAccountButton = UIComponents.createButton("Create Account", event -> handleCreateAccount());
-
-        HBox buttonContainer = new HBox(20, loginButton, createAccountButton);
+        HBox buttonContainer = new HBox(20, encryptButton, decryptButton);
         buttonContainer.setAlignment(Pos.CENTER);
 
-        Label title = new Label("LOGIN");
-        title.setFont(Font.font("DejaVu Sans Mono", 24));
-        title.setTextFill(Color.web("#2c3e50"));
-
-        VBox loginForm = new VBox(15);
-        loginForm.setAlignment(Pos.CENTER);
-        loginForm.setPadding(new Insets(20));
-        loginForm.getChildren().addAll(
-                title,
-                UIComponents.createLabeledInput("Username:", usernameField),
-                UIComponents.createLabeledInput("Password:", passwordField),
-                buttonContainer
-        );
-
-        Rectangle background = new Rectangle(400, 300);
-        background.setFill(Color.WHITE);
-        background.setStroke(Color.LIGHTGRAY);
-        background.setStrokeWidth(1);
-        background.setArcWidth(20);
-        background.setArcHeight(20);
-
-        return new StackPane(background, loginForm);
+        return buttonContainer;
     }
 
-    private void handleLogin() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
-
-        if (username.isEmpty() || password.isEmpty()) {
-            showAlert("Error", "Username and password are required!");
-            return;
-        }
-
-        if (authController.authenticate(username, password)) {
-            interfaceManager.showMainScreen();
-            System.out.println("Logged in successfully!");
-        } else {
-            showAlert("Error", "Invalid username or password!");
-        }
+    public VBox getRoot() {
+        return root;
     }
 
-    private void handleCreateAccount() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
-
-        if (username.isEmpty() || password.isEmpty()) {
-            showAlert("Error", "Username and password are required!");
-            return;
-        }
-
-        if (authController.createAccount(username, password)) {
-            showAlert("Success", "Account created successfully! You can now log in.");
-        } else {
-            showAlert("Error", "Username already exists!");
-        }
+    private void handleEncrypt() {
+        System.out.println("Encrypting...");
+        interfaceManager.showEncryptScreen();
+    }
+    private void handleDecrypt() {
+        System.out.println("Decrypting...");
+        interfaceManager.showDecryptScreen();
     }
 
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
+
 }
