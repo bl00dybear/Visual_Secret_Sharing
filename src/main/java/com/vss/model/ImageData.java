@@ -1,16 +1,9 @@
-package main.java.com.vss;
+package main.java.com.vss.model;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
 
-public abstract class ImageData {
-//    protected byte[] imageBytes;
+public class ImageData {
     protected int[][][] image;
-
-//    public byte[] getImageBytes(){}
-//    public void setImageBytes(byte[] imageBytes){}
-//    public BufferedImage toBufferedImage(){}
-//    public void fromBufferedImage(BufferedImage image){}
 
     public void setImageMatrix(BufferedImage image) {
         int width = image.getWidth();
@@ -47,5 +40,4 @@ public abstract class ImageData {
 
         this.image = matrix;
     }
-
 }

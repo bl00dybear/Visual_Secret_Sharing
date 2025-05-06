@@ -1,15 +1,26 @@
-package main.java.com.vss;
+package main.java.com.vss.model;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
-public class Share extends ImageData{
-
+public class Share extends ImageData {
     Share (int width, int height) {
         super(width, height);
     }
+    private Integer[] coefficients;
+    private Integer totalNumberOfShares;
+    private Integer minimumNumberOfShares;
+
+    public void setMinimumNumberOfShares(Integer minimumNumberOfShares) {this.minimumNumberOfShares = minimumNumberOfShares;}
+
+    public void setTotalNumberOfShares(Integer totalNumberOfShares) {
+        this.totalNumberOfShares = totalNumberOfShares;
+    }
+
+
 
     private int polynomialFunction(int x,int minNumShares, Integer[] coeff){
         int f = 0;
@@ -23,12 +34,21 @@ public class Share extends ImageData{
         return f;
     }
 
+    private void generateCoefficients() {
+        coefficients = new Integer[minimumNumberOfShares];
+        for (int i = 0; i < minimumNumberOfShares-1; i+=1) {
+            int randomNumber = new Random().nextInt(255)+1;
+            coefficients[i] = randomNumber;
+        }
+    }
+
     private void processPixels(int width, int height, int[][][] image,
-                               Integer[] coefficients, int shareNum,int minNumShares) {
+                               int shareNum,int minNumShares) {
 
         for (int x=0; x<height; x++) {
             for (int y=0; y<width; y++) {
                 for (int z=0; z<3; z++) {
+                    generateCoefficients();
                     coefficients[coefficients.length-1] = image[x][y][z];
                     int xx = polynomialFunction(shareNum,minNumShares,coefficients);
                     this.image[x][y][z] = xx;
@@ -37,12 +57,11 @@ public class Share extends ImageData{
         }
     }
 
-    public void generateShare(int[][][] image, Integer[] coefficients,
-                              int minNumShares, int shareNum) {
+    public void generateShare(int[][][] image, int minNumShares, int shareNum) {
         int height = image.length;
         int width = image[0].length;
 
-        processPixels(width, height, image, coefficients,shareNum, minNumShares);
+        processPixels(width, height, image, shareNum, minNumShares);
     }
 
     public BufferedImage getShareImage(int width, int height) {

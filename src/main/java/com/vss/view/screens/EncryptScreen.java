@@ -1,5 +1,6 @@
 package main.java.com.vss.view.screens;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -15,15 +16,20 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import main.java.com.vss.controller.AuthController;
 import main.java.com.vss.controller.EncryptController;
+import main.java.com.vss.model.Share;
+import main.java.com.vss.observer.ImageProcessingObserver;
 import main.java.com.vss.view.InterfaceManager;
-import main2.java.com.vss.presentation.view.components.UIFactory;
+import main.java.com.vss.view.components.UIComponents;
 
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EncryptScreen {
+public class EncryptScreen implements ImageProcessingObserver {
     private final InterfaceManager interfaceManager;
     private final AuthController authController;
     private final EncryptController encryptController;
@@ -69,18 +75,20 @@ public class EncryptScreen {
         scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-background: white; -fx-background-color: white; -fx-background-insets: 0;");
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         contentContainer = new VBox(20);
         contentContainer.setAlignment(Pos.TOP_CENTER);
 
         initializeComponents();
 
+        encryptController.addObserver(this);
+
         contentContainer.getChildren().addAll(
                 createTitle(),
-                createImageSection()
-//                createSharesSection(),
-//                createControlSection()
+                createImageSection(),
+                createSharesSection(),
+                createControlSection()
         );
 
         scrollPane.setContent(contentContainer);
@@ -93,7 +101,6 @@ public class EncryptScreen {
 
     private Text createTitle() {
         asciiText.setFont(Font.font("Monospaced", 14));
-
         return asciiText;
     }
 
@@ -124,7 +131,7 @@ public class EncryptScreen {
         progressIndicator.setVisible(false);
 
         // Inițializăm butoanele
-        processButton = UIFactory.createButton("Process Image", event -> handleProcessImage());
+        processButton = UIComponents.createButton("Process Image", event -> handleProcessImage());
     }
 
     private VBox createImageSection() {
@@ -139,7 +146,7 @@ public class EncryptScreen {
         Text dropText = new Text("Drag and Drop Image");
         dropText.setFont(Font.font("DejaVu Sans Mono", 14));
 
-        Button chooseButton = UIFactory.createButton("Choose Image", event -> handleChooseImage());
+        Button chooseButton = UIComponents.createButton("Choose Image", event -> handleChooseImage());
 
         StackPane dropContainer = new StackPane(dropZone, dropText, chooseButton);
         StackPane.setAlignment(dropText, Pos.CENTER);
@@ -157,8 +164,8 @@ public class EncryptScreen {
     }
 
     private VBox createSharesSection() {
-        HBox totalSharesContainer = UIFactory.createLabeledInput("Total number of shares:", totalSharesField);
-        HBox minSharesContainer = UIFactory.createLabeledInput("Minimum number of shares:", minSharesField);
+        HBox totalSharesContainer = UIComponents.createLabeledInput("", totalSharesField);
+        HBox minSharesContainer = UIComponents.createLabeledInput("", minSharesField);
 
         VBox inputFields = new VBox(10, totalSharesContainer, minSharesContainer);
         inputFields.setAlignment(Pos.CENTER);
@@ -175,8 +182,8 @@ public class EncryptScreen {
     }
 
     private HBox createControlSection() {
-        Button saveButton = UIFactory.createButton("Save Shares", event -> handleSaveShares());
-        Button clearButton = UIFactory.createButton("Clear All", event -> handleClear());
+        Button saveButton = UIComponents.createButton("Save Shares", event -> handleSaveShares());
+        Button clearButton = UIComponents.createButton("Clear All", event -> handleClear());
 
         HBox controls = new HBox(20, saveButton, clearButton);
         controls.setAlignment(Pos.CENTER);
@@ -184,14 +191,23 @@ public class EncryptScreen {
         return controls;
     }
 
-    private void handleProcessImage(){}
+    private void handleProcessImage(){
+        try {
+            int totalShares = Integer.parseInt(totalSharesField.getText());
+            int minShares = Integer.parseInt(minSharesField.getText());
+
+            encryptController.encryptImage(totalShares, minShares);
+
+        } catch (NumberFormatException e) {
+            showAlert("Input Error", "Please enter valid integer values for total and minimum shares.");
+        }
+    }
 
     private void handleChooseImage(){
         File file = encryptController.chooseImageFile((Stage) root.getScene().getWindow());
         if (file != null) {
             try {
                 encryptController.loadImage(file);
-                // Imaginea va fi actualizată prin callback-ul onImageLoaded
             } catch (IOException e) {
                 showAlert("Error", "Failed to load image: " + e.getMessage());
             }
@@ -209,5 +225,37 @@ public class EncryptScreen {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    private Image convertToFxImage(BufferedImage bufferedImage) {
+        return SwingFXUtils.toFXImage(bufferedImage, null);
+    }
+
+    @Override
+    public void onImageLoaded(BufferedImage image){
+        javafx.scene.image.Image fxImage = convertToFxImage(image);
+        imagePreview.setImage(fxImage);
+    }
+
+    @Override
+    public void onProcessingStarted(){}
+
+    @Override
+    public void onProcessingCompleted(List<Image> shares){
+        this.shares = shares;
+
+        sharesContainer.getChildren().clear();
+
+        for (Image share : shares) {
+            ImageView shareView = new ImageView(share);
+            shareView.setFitWidth(150);
+            shareView.setPreserveRatio(true);
+            shareView.setSmooth(true);
+            sharesContainer.getChildren().add(shareView);
+        }
+    }
+
+    @Override
+    public void onProcessingError(String errorMessage){}
+
 
 }
