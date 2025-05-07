@@ -13,19 +13,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import main.java.com.vss.controller.AuthController;
 import main.java.com.vss.controller.EncryptController;
-import main.java.com.vss.model.Share;
 import main.java.com.vss.observer.ImageProcessingObserver;
 import main.java.com.vss.view.InterfaceManager;
 import main.java.com.vss.view.components.UIComponents;
 
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +29,7 @@ public class EncryptScreen implements ImageProcessingObserver {
     private final AuthController authController;
     private final EncryptController encryptController;
 
-    private VBox root;
+    private final VBox root;
     private final ScrollPane scrollPane;
     private final VBox contentContainer;
 
@@ -48,17 +43,17 @@ public class EncryptScreen implements ImageProcessingObserver {
     private List<Image> shares = new ArrayList<>();
 
     private static final Text asciiText = new Text("""
-                
-                  ██████ ▓█████  ▄████▄   ██▀███  ▓█████▄▄▄█████▓     ██████  ██░ ██  ▄▄▄       ██▀███   ██▓ ███▄    █   ▄████ 
+
+                  ██████ ▓█████  ▄████▄   ██▀███  ▓█████▄▄▄█████▓     ██████  ██░ ██  ▄▄▄       ██▀███   ██▓ ███▄    █   ▄████
                 ▒██    ▒ ▓█   ▀ ▒██▀ ▀█  ▓██ ▒ ██▒▓█   ▀▓  ██▒ ▓▒   ▒██    ▒ ▓██░ ██▒▒████▄    ▓██ ▒ ██▒▓██▒ ██ ▀█   █  ██▒ ▀█▒
                 ░ ▓██▄   ▒███   ▒▓█    ▄ ▓██ ░▄█ ▒▒███  ▒ ▓██░ ▒░   ░ ▓██▄   ▒██▀▀██░▒██  ▀█▄  ▓██ ░▄█ ▒▒██▒▓██  ▀█ ██▒▒██░▄▄▄░
                   ▒   ██▒▒▓█  ▄ ▒▓▓▄ ▄██▒▒██▀▀█▄  ▒▓█  ▄░ ▓██▓ ░      ▒   ██▒░▓█ ░██ ░██▄▄▄▄██ ▒██▀▀█▄  ░██░▓██▒  ▐▌██▒░▓█  ██▓
                 ▒██████▒▒░▒████▒▒ ▓███▀ ░░██▓ ▒██▒░▒████▒ ▒██▒ ░    ▒██████▒▒░▓█▒░██▓ ▓█   ▓██▒░██▓ ▒██▒░██░▒██░   ▓██░░▒▓███▀▒
-                ▒ ▒▓▒ ▒ ░░░ ▒░ ░░ ░▒ ▒  ░░ ▒▓ ░▒▓░░░ ▒░ ░ ▒ ░░      ▒ ▒▓▒ ▒ ░ ▒ ░░▒░▒ ▒▒   ▓▒█░░ ▒▓ ░▒▓░░▓  ░ ▒░   ▒ ▒  ░▒   ▒ 
-                ░ ░▒  ░ ░ ░ ░  ░  ░  ▒     ░▒ ░ ▒░ ░ ░  ░   ░       ░ ░▒  ░ ░ ▒ ░▒░ ░  ▒   ▒▒ ░  ░▒ ░ ▒░ ▒ ░░ ░░   ░ ▒░  ░   ░ 
-                ░  ░  ░     ░   ░          ░░   ░    ░    ░         ░  ░  ░   ░  ░░ ░  ░   ▒     ░░   ░  ▒ ░   ░   ░ ░ ░ ░   ░ 
-                      ░     ░  ░░ ░         ░        ░  ░                 ░   ░  ░  ░      ░  ░   ░      ░           ░       ░ 
-                                ░                                                                                              
+                ▒ ▒▓▒ ▒ ░░░ ▒░ ░░ ░▒ ▒  ░░ ▒▓ ░▒▓░░░ ▒░ ░ ▒ ░░      ▒ ▒▓▒ ▒ ░ ▒ ░░▒░▒ ▒▒   ▓▒█░░ ▒▓ ░▒▓░░▓  ░ ▒░   ▒ ▒  ░▒   ▒
+                ░ ░▒  ░ ░ ░ ░  ░  ░  ▒     ░▒ ░ ▒░ ░ ░  ░   ░       ░ ░▒  ░ ░ ▒ ░▒░ ░  ▒   ▒▒ ░  ░▒ ░ ▒░ ▒ ░░ ░░   ░ ▒░  ░   ░
+                ░  ░  ░     ░   ░          ░░   ░    ░    ░         ░  ░  ░   ░  ░░ ░  ░   ▒     ░░   ░  ▒ ░   ░   ░ ░ ░ ░   ░
+                      ░     ░  ░░ ░         ░        ░  ░                 ░   ░  ░  ░      ░  ░   ░      ░           ░       ░
+                                ░
                 """);
 
     public EncryptScreen(InterfaceManager interfaceManager, AuthController authController, EncryptController encryptController){
@@ -105,7 +100,6 @@ public class EncryptScreen implements ImageProcessingObserver {
     }
 
     private void initializeComponents() {
-        // Inițializăm câmpurile de text
         totalSharesField = new TextField();
         totalSharesField.setPromptText("Total number of shares");
         totalSharesField.setPrefWidth(200);
@@ -114,7 +108,6 @@ public class EncryptScreen implements ImageProcessingObserver {
         minSharesField.setPromptText("Minimum number of shares");
         minSharesField.setPrefWidth(200);
 
-        // Inițializăm vizualizarea imaginii
         imagePreview = new ImageView();
         imagePreview.setFitWidth(300);
         imagePreview.setFitHeight(200);
@@ -122,20 +115,19 @@ public class EncryptScreen implements ImageProcessingObserver {
         imagePreview.setSmooth(true);
         imagePreview.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1px;");
 
-        // Inițializăm containerul pentru share-uri
         sharesContainer = new VBox(10);
         sharesContainer.setAlignment(Pos.CENTER);
 
-        // Inițializăm indicatorul de progres
-        progressIndicator = new ProgressIndicator();
-        progressIndicator.setVisible(false);
+//        progressIndicator = new ProgressIndicator();
+//        progressIndicator.setVisible(false);
 
-        // Inițializăm butoanele
-        processButton = UIComponents.createButton("Process Image", event -> handleProcessImage());
+        processButton = UIComponents.createButton("Process Secret", event -> encryptController.handleProcessImage(
+                Integer.parseInt(totalSharesField.getText()),
+                Integer.parseInt(minSharesField.getText())
+        ));
     }
 
     private VBox createImageSection() {
-        // Creează zona de drop pentru imagine
         Rectangle dropZone = new Rectangle(600, 200);
         dropZone.setFill(Color.LIGHTGRAY);
         dropZone.setStroke(Color.GRAY);
@@ -146,14 +138,14 @@ public class EncryptScreen implements ImageProcessingObserver {
         Text dropText = new Text("Drag and Drop Image");
         dropText.setFont(Font.font("DejaVu Sans Mono", 14));
 
-        Button chooseButton = UIComponents.createButton("Choose Image", event -> handleChooseImage());
+        Button chooseButton = UIComponents.createButton("Choose Image", event ->
+                encryptController.handleChooseImage(this.root));
 
         StackPane dropContainer = new StackPane(dropZone, dropText, chooseButton);
         StackPane.setAlignment(dropText, Pos.CENTER);
         StackPane.setAlignment(chooseButton, Pos.BOTTOM_CENTER);
         StackPane.setMargin(chooseButton, new Insets(10));
 
-        // Creează containerul pentru preview
         Label previewLabel = new Label("Preview:");
         previewLabel.setFont(Font.font("DejaVu Sans Mono", 14));
 
@@ -170,7 +162,7 @@ public class EncryptScreen implements ImageProcessingObserver {
         VBox inputFields = new VBox(10, totalSharesContainer, minSharesContainer);
         inputFields.setAlignment(Pos.CENTER);
 
-        HBox processContainer = new HBox(20, processButton, progressIndicator);
+        HBox processContainer = new HBox(20, processButton);
         processContainer.setAlignment(Pos.CENTER);
 
         Label sharesLabel = new Label("Generated Shares:");
@@ -182,8 +174,10 @@ public class EncryptScreen implements ImageProcessingObserver {
     }
 
     private HBox createControlSection() {
-        Button saveButton = UIComponents.createButton("Save Shares", event -> handleSaveShares());
-        Button clearButton = UIComponents.createButton("Clear All", event -> handleClear());
+        Button saveButton = UIComponents.createButton("Save Shares", event -> encryptController.handleSaveShares(
+                this.shares,"/home/sebi/Visual_Secret_Sharing/shares"
+        ));
+        Button clearButton = UIComponents.createButton("Clear All", event -> encryptController.handleClear());
 
         HBox controls = new HBox(20, saveButton, clearButton);
         controls.setAlignment(Pos.CENTER);
@@ -191,40 +185,6 @@ public class EncryptScreen implements ImageProcessingObserver {
         return controls;
     }
 
-    private void handleProcessImage(){
-        try {
-            int totalShares = Integer.parseInt(totalSharesField.getText());
-            int minShares = Integer.parseInt(minSharesField.getText());
-
-            encryptController.encryptImage(totalShares, minShares);
-
-        } catch (NumberFormatException e) {
-            showAlert("Input Error", "Please enter valid integer values for total and minimum shares.");
-        }
-    }
-
-    private void handleChooseImage(){
-        File file = encryptController.chooseImageFile((Stage) root.getScene().getWindow());
-        if (file != null) {
-            try {
-                encryptController.loadImage(file);
-            } catch (IOException e) {
-                showAlert("Error", "Failed to load image: " + e.getMessage());
-            }
-        }
-    }
-
-    private void handleSaveShares(){}
-
-    private void handleClear(){}
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
 
     private Image convertToFxImage(BufferedImage bufferedImage) {
         return SwingFXUtils.toFXImage(bufferedImage, null);

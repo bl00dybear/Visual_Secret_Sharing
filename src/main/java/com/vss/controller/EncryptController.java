@@ -1,5 +1,7 @@
 package main.java.com.vss.controller;
 
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import main.java.com.vss.application.service.SecretService;
@@ -9,6 +11,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import javafx.scene.image.Image;
 
 public class EncryptController {
     private final SecretService secretService;
@@ -21,7 +25,7 @@ public class EncryptController {
         secretService.addObserver(observer);
     }
 
-    public File chooseImageFile(Stage stage) {
+    private File chooseImageFile(Stage stage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Image");
         fileChooser.getExtensionFilters().add(
@@ -29,15 +33,43 @@ public class EncryptController {
         return fileChooser.showOpenDialog(stage);
     }
 
-    public void loadImage(File file) throws IOException {
+    public void handleProcessImage(int totalShares, int minShares) {
+        secretService.createShares(minShares, totalShares);
+    }
+
+    public void handleChooseImage(VBox root){
+        File file = this.chooseImageFile((Stage) root.getScene().getWindow());
+
         if (file != null) {
-            BufferedImage image = ImageIO.read(file);
-            secretService.uploadImage(image);
-            System.out.println("Aici");
+            try {
+                BufferedImage image = ImageIO.read(file);
+                secretService.uploadImage(image);
+            } catch (IOException e) {
+                System.out.println("Failed to load image: " + e.getMessage());
+            }
         }
     }
 
-    public void encryptImage(int totalShares, int minShares) {
-        secretService.createShares(minShares, totalShares);
+    public void handleSaveShares(List<Image> shares, String outputDir){
+        File dir = new File(outputDir);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                System.out.println("Fail to create directory: " + outputDir);
+            }
+        }
+
+        for(Image share : shares) {
+            String fileName = outputDir + File.separator + "share_" + shares.indexOf(share) + ".png";
+            File outputFile = new File(fileName);
+            try {
+                ImageIO.write(SwingFXUtils.fromFXImage(share, null), "png", outputFile);
+            } catch (IOException e) {
+                System.out.println("Failed to save image: " + e.getMessage());
+            }
+            System.out.println("Image saved to: " + outputFile.getAbsolutePath());
+        }
     }
+
+    public void handleClear(){}
+
 }

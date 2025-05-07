@@ -36,7 +36,6 @@ public class SecretService {
 
     private void notifyImageLoaded(BufferedImage image) {
         for (ImageProcessingObserver observer : observers) {
-            System.out.println("[FLOW] SecretService: Notificare observer: " + observer.getClass().getSimpleName());
             observer.onImageLoaded(image);
         }
 
