@@ -158,7 +158,7 @@ public class Secret extends ImageData{
                     }
 
                     if (secret == 256) {
-                        secret = 0;
+                        secret = 255;
                     }
 
                     matrix[i][j][z] = secret;
