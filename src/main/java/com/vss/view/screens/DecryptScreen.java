@@ -38,6 +38,7 @@ public class DecryptScreen implements ImageProcessingObserver {
     private VBox sharesContainer;
     private VBox secretContainer;
     private Button processButton;
+    private Button encryptButton;
 
     private static final Text asciiText = new Text("""
 
@@ -101,6 +102,9 @@ public class DecryptScreen implements ImageProcessingObserver {
 
         processButton = UIComponents.createButton("Process Shares", event ->decryptController.handleDecryptImage());
         processButton.setAlignment(Pos.CENTER);
+
+        encryptButton = UIComponents.createButton("Encrypt", event->decryptController.handleEncrypt());
+        encryptButton.setAlignment(Pos.CENTER);
     }
 
     private Text createTitle() {
@@ -140,7 +144,7 @@ public class DecryptScreen implements ImageProcessingObserver {
         Label secretLabel = new Label("Secret:");
         secretLabel.setFont(Font.font("DejaVu Sans Mono", 14));
 
-        HBox processContainer = new HBox(20, processButton);
+        HBox processContainer = new HBox(20, processButton, encryptButton);
         processContainer.setAlignment(Pos.CENTER);
 
         secretContainer.getChildren().add(secretLabel);

@@ -13,11 +13,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import javafx.scene.image.Image;
+import main.java.com.vss.view.InterfaceManager;
 
 public class EncryptController {
     private final SecretService secretService;
+    private final InterfaceManager interfaceManager;
 
-    public EncryptController() {
+    public EncryptController(InterfaceManager interfaceManager) {
+        this.interfaceManager = interfaceManager;
         this.secretService = SecretService.getInstance();
     }
 
@@ -68,6 +71,11 @@ public class EncryptController {
             }
             System.out.println("Image saved to: " + outputFile.getAbsolutePath());
         }
+    }
+
+    public void handleDecrypt() {
+        System.out.println("Decrypting...");
+        interfaceManager.showDecryptScreen();
     }
 
     public void handleClear(){}

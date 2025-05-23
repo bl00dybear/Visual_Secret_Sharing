@@ -5,6 +5,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import main.java.com.vss.application.service.ShareService;
 import main.java.com.vss.observer.ImageProcessingObserver;
+import main.java.com.vss.view.InterfaceManager;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -13,9 +14,11 @@ import java.io.IOException;
 
 public class DecryptController {
     private final ShareService shareService;
+    private final InterfaceManager interfaceManager;
 
-    public DecryptController() {
+    public DecryptController(InterfaceManager interfaceManager) {
         this.shareService = ShareService.getInstance();
+        this.interfaceManager = interfaceManager;
     }
 
     public void addObserver(ImageProcessingObserver observer){shareService.addObserver(observer);}
@@ -44,6 +47,11 @@ public class DecryptController {
 
     public void handleDecryptImage(){
         shareService.decryptSecret();
+    }
+
+    public void handleEncrypt() {
+        System.out.println("Encrypting...");
+        interfaceManager.showEncryptScreen();
     }
 
     public void handleClear(){}

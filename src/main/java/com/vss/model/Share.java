@@ -28,7 +28,7 @@ public class Share extends ImageData {
 
     private int polynomialFunction(int x, int minNumShares, Integer[] coeff) {
         int mod = MOD;
-        int result = coeff[0]; // a0 (secretul)
+        int result = coeff[0];
         int xPower = 1;
 
         for (int i = 1; i < minNumShares; i++) {

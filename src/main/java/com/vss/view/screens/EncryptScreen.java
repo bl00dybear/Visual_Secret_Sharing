@@ -38,7 +38,6 @@ public class EncryptScreen implements ImageProcessingObserver {
     private ImageView imagePreview;
     private VBox sharesContainer;
     private Button processButton;
-    private ProgressIndicator progressIndicator;
 
     private List<Image> shares = new ArrayList<>();
 
@@ -118,9 +117,6 @@ public class EncryptScreen implements ImageProcessingObserver {
         sharesContainer = new VBox(10);
         sharesContainer.setAlignment(Pos.CENTER);
 
-//        progressIndicator = new ProgressIndicator();
-//        progressIndicator.setVisible(false);
-
         processButton = UIComponents.createButton("Process Secret", event -> encryptController.handleProcessImage(
                 Integer.parseInt(totalSharesField.getText()),
                 Integer.parseInt(minSharesField.getText())
@@ -179,7 +175,9 @@ public class EncryptScreen implements ImageProcessingObserver {
         ));
         Button clearButton = UIComponents.createButton("Clear All", event -> encryptController.handleClear());
 
-        HBox controls = new HBox(20, saveButton, clearButton);
+        Button decryptButton = UIComponents.createButton("Decrypt",event -> encryptController.handleDecrypt());
+
+        HBox controls = new HBox(20, saveButton, clearButton,decryptButton);
         controls.setAlignment(Pos.CENTER);
 
         return controls;
