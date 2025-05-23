@@ -19,6 +19,7 @@ import main.java.com.vss.controller.DecryptController;
 import main.java.com.vss.observer.ImageProcessingObserver;
 
 import java.awt.image.BufferedImage;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.image.Image;
@@ -100,7 +101,13 @@ public class DecryptScreen implements ImageProcessingObserver {
         sharesContainer = new VBox(10);
         sharesContainer.setAlignment(Pos.CENTER);
 
-        processButton = UIComponents.createButton("Process Shares", event ->decryptController.handleDecryptImage());
+        processButton = UIComponents.createButton("Process Shares", event -> {
+            try {
+                decryptController.handleDecryptImage();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
         processButton.setAlignment(Pos.CENTER);
 
         encryptButton = UIComponents.createButton("Encrypt", event->decryptController.handleEncrypt());

@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class DecryptController {
     private final ShareService shareService;
@@ -45,7 +46,7 @@ public class DecryptController {
         }
     }
 
-    public void handleDecryptImage(){
+    public void handleDecryptImage() throws SQLException {
         shareService.decryptSecret();
     }
 

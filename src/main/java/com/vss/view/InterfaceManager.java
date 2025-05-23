@@ -18,7 +18,7 @@ public class InterfaceManager {
 
     public InterfaceManager(Stage primaryStage){
         this.primaryStage = primaryStage;
-        this.authController = new AuthController();
+        this.authController = new AuthController(this);
         this.encryptController = new EncryptController(this);
         this.decryptController = new DecryptController(this);
     }

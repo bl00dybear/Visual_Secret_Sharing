@@ -1,11 +1,14 @@
 package main.java.com.vss.controller;
 
 import main.java.com.vss.application.service.AuthService;
+import main.java.com.vss.view.InterfaceManager;
 
 public class AuthController {
     private final AuthService authService;
+    private final InterfaceManager interfaceManager;
 
-    public AuthController() {
+    public AuthController(InterfaceManager interfaceManager) {
+        this.interfaceManager = interfaceManager;
         this.authService = AuthService.getInstance();
     }
 
@@ -25,5 +28,10 @@ public class AuthController {
 
         // Logică de creare cont simulată - va fi implementată complet în sprint-ul următor
         return authService.createAccount(username, password);
+    }
+
+    public void deleteAccount() {
+        authService.deleteAccount();
+        interfaceManager.showLoginScreen();
     }
 }

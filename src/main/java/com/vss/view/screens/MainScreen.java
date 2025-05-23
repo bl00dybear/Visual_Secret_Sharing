@@ -54,12 +54,17 @@ public class MainScreen {
         return asciiText;
     }
 
-    private HBox createButtonPanel(){
-        Button encryptButton = UIComponents.createButton("Encrypt", event->handleEncrypt());
-        Button decryptButton = UIComponents.createButton("Decrypt",event -> handleDecrypt());
+    private VBox createButtonPanel() {
+        Button encryptButton = UIComponents.createButton("Encrypt", event -> handleEncrypt());
+        Button decryptButton = UIComponents.createButton("Decrypt", event -> handleDecrypt());
+        Button logoutButton = UIComponents.createButton("Logout", event -> interfaceManager.showLoginScreen());
+        Button deleteAccButton = UIComponents.createButton("Delete Account", event -> authController.deleteAccount());
+        Button exitButton = UIComponents.createButton("Exit", event -> System.exit(0));
 
-        HBox buttonContainer = new HBox(20, encryptButton, decryptButton);
+        VBox buttonContainer = new VBox(10, encryptButton, decryptButton, logoutButton, deleteAccButton, exitButton);
         buttonContainer.setAlignment(Pos.CENTER);
+
+        buttonContainer.setPadding(new Insets(20));
 
         return buttonContainer;
     }
@@ -76,6 +81,5 @@ public class MainScreen {
         System.out.println("Decrypting...");
         interfaceManager.showDecryptScreen();
     }
-
 
 }

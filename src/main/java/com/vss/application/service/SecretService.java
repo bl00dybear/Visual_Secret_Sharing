@@ -6,7 +6,9 @@ import main.java.com.vss.model.Share;
 import main.java.com.vss.model.Secret;
 import main.java.com.vss.observer.ImageProcessingObserver;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +18,8 @@ public class SecretService {
     private Secret secret;
     private List<Share> shares;
     private final List<ImageProcessingObserver> observers = new ArrayList<>();
+
+    private String mimeType;
 
     private  SecretService()  {
         shares = new ArrayList<>();
@@ -48,8 +52,12 @@ public class SecretService {
         }
     }
 
-    public void uploadImage(BufferedImage image) {
+    public void uploadImage(BufferedImage image, String imageName) {
         this.image = image;
+
+        String format = imageName.toLowerCase().endsWith(".png") ? "PNG" : "JPEG";
+        this.mimeType = format.equals("PNG") ? "image/png" : "image/jpeg";
+
         notifyImageLoaded(image);
     }
 
@@ -84,4 +92,13 @@ public class SecretService {
         notifyProcessingCompleted(sharesFx);
 
     }
+
+    public byte[] getSecretBytes() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(this.image, this.mimeType.split("/")[1], baos);
+        byte[] imageBytes = baos.toByteArray();
+
+        return imageBytes;
+    }
+
 }
