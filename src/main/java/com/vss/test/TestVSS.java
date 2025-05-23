@@ -4,6 +4,7 @@ import main.java.com.vss.model.Secret;
 import main.java.com.vss.model.Share;
 
 import javax.imageio.ImageIO;
+import java.awt.desktop.SystemSleepEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +15,7 @@ public class TestVSS {
     public static void main(String[] args) {
         try {
             // Încărcarea imaginii secrete
-            String inputPath = "/home/sebi/Pictures/profile_images/image_3.png"; // Înlocuiește cu calea către imaginea ta
+            String inputPath = "/home/sebi/Pictures/profile_images/test.png"; // Înlocuiește cu calea către imaginea ta
             BufferedImage originalImage = ImageIO.read(new File(inputPath));
 
             BufferedImage image = ImageIO.read(new File(inputPath));
@@ -35,9 +36,32 @@ public class TestVSS {
             secret.setMinimumNumberOfShares(k);
             secret.setTotalNumberOfShares(n);
 
+//            25 44 117 60
+
+            for(int i = 0; i < originalImage.getWidth(); i++) {
+                for(int j = 0; j < originalImage.getHeight(); j++) {
+                    int rgb = originalImage.getRGB(j, i);
+                    int red = (rgb >> 16) & 0xff;
+                    int green = (rgb >> 8) & 0xff;
+                    int blue = rgb & 0xff;
+
+                    System.out.println("RGB: " + red + " " + green + " " + blue);
+                }
+            }
+
+            System.out.println("Printare cu metoda\n");
+
+            secret.printImageStats();
+
+
             // Generarea share-urilor
             System.out.println("Generăm " + n + " shares...");
             List<Share> shares = secret.getShares(originalImage.getWidth(), originalImage.getHeight());
+
+            for(Share share : shares) {
+                share.printImageStats();
+                System.out.println();
+            }
 
             // Salvarea share-urilor
             for (int i = 0; i < shares.size(); i++) {
@@ -47,38 +71,20 @@ public class TestVSS {
                 System.out.println("Share " + (i+1) + " salvat");
             }
 
-            // Testăm reconstrucția cu diferite combinații de shares
 
-            // Test 1: Folosim exact k share-uri
-            System.out.println("\nTest 1: Reconstrucție cu exact " + k + " share-uri");
+            // Test : Folosim exact k share-uri
+            System.out.println("\nTest : Reconstrucție cu exact " + k + " share-uri");
             List<Share> subset1 = new ArrayList<>();
             for (int i = 0; i < k; i++) {
                 subset1.add(shares.get(i));
             }
 
-            BufferedImage reconstructed1 = secret.getSecretImage(
-                    originalImage.getWidth(), originalImage.getHeight(), subset1);
-            ImageIO.write(reconstructed1, "png", new File("test_output/reconstructed_test1.png"));
+//            BufferedImage reconstructed1 = secret.getSecretImage(
+//                    originalImage.getWidth(), originalImage.getHeight(), subset1);
+//            ImageIO.write(reconstructed1, "png", new File("test_output/reconstructed_test1.png"));
 
-            // Test 2: Folosim toate share-urile
-            System.out.println("\nTest 2: Reconstrucție cu toate cele " + n + " share-uri");
-            BufferedImage reconstructed2 = secret.getSecretImage(
-                    originalImage.getWidth(), originalImage.getHeight(), shares);
-            ImageIO.write(reconstructed2, "png", new File("test_output/reconstructed_test2.png"));
+            secret.printImageStats();
 
-            // Test 3: Folosim o combinație diferită de k share-uri
-            System.out.println("\nTest 3: Reconstrucție cu o combinație diferită de " + k + " share-uri");
-            List<Share> subset3 = new ArrayList<>();
-            // Adăugăm ultimele k share-uri
-            for (int i = n - k; i < n; i++) {
-                subset3.add(shares.get(i));
-            }
-
-            BufferedImage reconstructed3 = secret.getSecretImage(
-                    originalImage.getWidth(), originalImage.getHeight(), subset3);
-            ImageIO.write(reconstructed3, "png", new File("test_output/reconstructed_test3.png"));
-
-            System.out.println("\nTeste finalizate. Verificați imaginile rezultate.");
 
         } catch (IOException e) {
             System.err.println("Eroare la procesarea imaginii: " + e.getMessage());

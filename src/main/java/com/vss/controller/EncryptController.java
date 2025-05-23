@@ -59,7 +59,7 @@ public class EncryptController {
         }
 
         for(Image share : shares) {
-            String fileName = outputDir + File.separator + "share_" + shares.indexOf(share) + ".png";
+            String fileName = outputDir + File.separator + "share_" + (shares.indexOf(share)+1) + ".png";
             File outputFile = new File(fileName);
             try {
                 ImageIO.write(SwingFXUtils.fromFXImage(share, null), "png", outputFile);

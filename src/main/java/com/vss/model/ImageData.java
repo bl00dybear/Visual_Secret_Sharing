@@ -11,19 +11,20 @@ public class ImageData {
 
         this.image = new int[height][width][3];
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int rgb = image.getRGB(x, y);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int rgb = image.getRGB(j, i);
 
                 int red = (rgb >> 16) & 0xFF;
                 int green = (rgb >> 8) & 0xFF;
                 int blue = rgb & 0xFF;
 
-                this.image[y][x][0] = red;
-                this.image[y][x][1] = green;
-                this.image[y][x][2] = blue;
+                this.image[i][j][0] = red;
+                this.image[i][j][1] = green;
+                this.image[i][j][2] = blue;
             }
         }
+
     }
 
     ImageData(BufferedImage image) {
@@ -42,7 +43,7 @@ public class ImageData {
     }
 
     // Metodă utilă pentru debugging
-    protected void printImageStats() {
+    public void printImageStats() {
         if (image == null) {
             System.out.println("Matricea de imagine nu a fost inițializată!");
             return;
@@ -56,14 +57,10 @@ public class ImageData {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 for (int z = 0; z < 3; z++) {
-                    int val = image[y][x][z];
-                    if (val > 0) nonZeroPixels++;
-                    maxValue = Math.max(maxValue, val);
+                    System.out.print(image[y][x][z] + " ");
                 }
+                System.out.println();
             }
         }
-
-        System.out.println("Statistici imagine: " + width + "x" + height);
-        System.out.println("Pixeli non-zero: " + nonZeroPixels + ", Valoare maximă: " + maxValue);
     }
 }

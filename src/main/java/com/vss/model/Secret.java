@@ -1,5 +1,6 @@
 package main.java.com.vss.model;
 
+import java.awt.desktop.SystemSleepEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,11 +11,16 @@ public class Secret extends ImageData{
     private Integer minimumNumberOfShares;
     private static final int MOD = 257;
 
+    private Integer[] coefficients;
+
     public Secret(BufferedImage image) {
         super(image);
         totalNumberOfShares = 0;
         minimumNumberOfShares = 0;
         shares = new ArrayList<>();
+
+        System.out.println("[1][1]:" + this.image[0][0][0] + " " + this.image[0][0][1] + " " + this.image[0][0][2] );
+
     }
 
     public Secret(int width, int height) {
@@ -32,14 +38,40 @@ public class Secret extends ImageData{
         this.totalNumberOfShares = totalNumberOfShares;
     }
 
+    private void generateCoefficients(int secret) {
+        coefficients = new Integer[minimumNumberOfShares];
+
+        coefficients[0] = secret;
+        int max = 256;
+        int min = 1;
+        int range = max - min + 1;
+
+        for (int i = 1; i < minimumNumberOfShares; i++) {
+            int randomNumber = (int)(Math.random() * range) + min;
+            coefficients[i] = randomNumber;
+        }
+    }
+
     public List<Share> getShares(Integer width, Integer height) {
-        for (int i=0; i<totalNumberOfShares; i++) {
+        for (int i=1; i<=totalNumberOfShares; i++) {
             Share share = new Share(width, height);
             share.setMinimumNumberOfShares(minimumNumberOfShares);
             share.setTotalNumberOfShares(totalNumberOfShares);
 
-            share.generateShare(this.image, minimumNumberOfShares, i+1);
             shares.add(share);
+        }
+
+        for(int i=0; i<height; i++) {
+            for(int j=0; j<width; j++) {
+                for(int z=0; z<3; z++) {
+                    int secret = image[i][j][z];
+                    generateCoefficients(secret);
+
+                    for(int shareNum=0; shareNum<shares.size(); shareNum++) {
+                        shares.get(shareNum).set_share_pixel(i, j, z, coefficients,shareNum+1, minimumNumberOfShares);
+                    }
+                }
+            }
         }
 
         return shares;
@@ -59,102 +91,77 @@ public class Secret extends ImageData{
             int tempT = t;
             t = newT;
             newT = tempT - quotient * newT;
-
             int tempR = r;
             r = newR;
             newR = tempR - quotient * newR;
         }
-
         if (r > 1) {
             throw new ArithmeticException("Numărul " + x + " nu are invers modular mod " + mod);
         }
-
         if (t < 0) {
             t += mod;
         }
-
         return t;
     }
 
-    private int functionL_i(int i, List<Integer> shareIndices) {
+    private int L_i(int xi, List<Integer> shareIndices) {
         int mod = MOD;
         int L_up = 1;
         int L_down = 1;
 
-        System.out.println("Calculăm L pentru i=" + i + " din " + shareIndices.size() + " shares");
-
-        for(Integer j : shareIndices) {
-            if(i != j) {
+        for (Integer xj : shareIndices) {
+            if (xi != xj) {
                 // x_j / (x_i - x_j)
-                int xj = j;
-                int diff = (i - j);
+                int diff = (xi - xj);
 
                 if (diff < 0) diff += mod;
                 else diff = diff % mod;
 
                 L_up = (L_up * xj) % mod;
                 L_down = (L_down * diff) % mod;
-
-                System.out.println("  j=" + j + ": L_up=" + L_up + ", L_down=" + L_down);
             }
         }
 
-        try {
-            int L_down_inv = modInverse(L_down);
-            int L = (int)(((long)L_up * L_down_inv) % mod);
-            System.out.println("L_" + i + " = " + L);
-            return L;
-        } catch (ArithmeticException e) {
-            System.err.println("Eroare la calculul L_" + i + ": " + e.getMessage());
-            return 0; // Sau gestionează eroarea în alt mod
-        }
+        int L_down_inv = modInverse(L_down);
+        int L = (int)(((long)L_up * L_down_inv) % mod);
+        return L;
     }
 
-    private int[][][] calculateSecretPixels(int width, int height, List<Share> shares) {
+    private int[][][] calculateSecretPixels(int width, int height, List<Share> shares,List<Integer> shareIndices) {
         int[][][] matrix = new int[height][width][3];
-        int mod = MOD;
+//        int mod = MOD;
 
         System.out.println("Reconstruim secretul din " + shares.size() + " shares");
 
-        // Extrage indicii share-urilor
-        List<Integer> shareIndices = new ArrayList<>();
-        for (int i = 0; i < shares.size(); i++) {
-            shareIndices.add(i + 1); // Presupunem că share-urile au indici de la 1 la n
-        }
+//        List<Integer> shareIndices = new ArrayList<>();
+//        for (int i = 0; i < shares.size(); i++) {
+//            shareIndices.add(i + 1);
+//        }
 
-        // Calculează coeficienții Lagrange
-        int[] coefficients = new int[shares.size()];
-        for (int i = 0; i < shares.size(); i++) {
-            coefficients[i] = functionL_i(i + 1, shareIndices);
-        }
-
-        // Verifică dacă valoarea unui pixel este în intervalul [0, 255]
         boolean hasValidPixels = false;
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 for (int z = 0; z < 3; z++) {
                     int secret = 0;
 
-                    for (int shareIndex = 0; shareIndex < shares.size(); shareIndex++) {
-                        int coef = coefficients[shareIndex];
-                        int shareValue = shares.get(shareIndex).image[y][x][z];
+                    for(int index=0;index<shares.size();index++) {
+                        int shareIndex = shareIndices.get(index);
+                        int shareValue = shares.get(index).image[i][j][z];
+                        int lagrangeCoeff = L_i(shareIndex, shareIndices);
 
-                        int term = (int)(((long)coef * shareValue) % mod);
-                        secret = (secret + term) % mod;
+                        secret = (secret + (int)(((long)shareValue * lagrangeCoeff) % 257)) % 257;
                     }
 
-                    // Verifică dacă secretul este valid
                     if (secret > 0) {
                         hasValidPixels = true;
                     }
 
-                    // Gestionează valoarea 256 care este invalidă pentru RGB
                     if (secret == 256) {
-                        secret = 0; // Sau 255, depinde de cum este tratat în schema ta
+                        secret = 0;
                     }
 
-                    matrix[y][x][z] = secret;
+                    matrix[i][j][z] = secret;
                 }
             }
         }
@@ -166,27 +173,29 @@ public class Secret extends ImageData{
         return matrix;
     }
 
-    public BufferedImage getSecretImage(int width, int height, List<Share> shares) {
+    public BufferedImage getSecretImage(int width, int height, List<Share> shares,List<Integer> shareIndices) {
         System.out.println("Creăm imagine secretă de " + width + "x" + height);
 
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
-        this.image = calculateSecretPixels(width, height, shares);
+        this.image = calculateSecretPixels(width, height, shares,shareIndices);
 
-        // Verifică valorile pixelilor
+        System.out.println("[1][1]:" + this.image[1][1][1] + " " + this.image[1][1][2] + " " + this.image[1][1][0] );
+
+
         int minR = 255, maxR = 0;
         int minG = 255, maxG = 0;
         int minB = 255, maxB = 0;
         int countInvalid = 0;
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int r = this.image[y][x][0];
-                int g = this.image[y][x][1];
-                int b = this.image[y][x][2];
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int r = this.image[i][j][0];
+                int g = this.image[i][j][1];
+                int b = this.image[i][j][2];
 
                 // Verifică valorile invalide
-                if (r > 255 || g > 255 || b > 255) {
+                if (r == 256 || g == 256 || b == 256) {
                     countInvalid++;
                     // Limitează la 255
                     r = Math.min(r, 255);
@@ -209,7 +218,7 @@ public class Secret extends ImageData{
                 }
 
                 int rgb = (r << 16) | (g << 8) | b;
-                image.setRGB(x, y, rgb);
+                image.setRGB(j, i, rgb);
             }
         }
 

@@ -7,6 +7,7 @@ import main.java.com.vss.model.Share;
 import main.java.com.vss.observer.ImageProcessingObserver;
 
 import java.awt.image.BufferedImage;
+import java.text.CollationElementIterator;
 import java.util.*;
 
 public class ShareService {
@@ -14,6 +15,7 @@ public class ShareService {
     private Secret secret;
     private Map<String,BufferedImage> images;
     private final List<Share> shares;
+    private List<Integer> imageIndexes;
     private final List<ImageProcessingObserver> observers;
 
     private int width;
@@ -26,6 +28,7 @@ public class ShareService {
         this.images = new TreeMap<>();
         this.shares = new ArrayList<>();
         this.observers = new ArrayList<>();
+        this.imageIndexes = new ArrayList<>();
     }
 
     public static synchronized ShareService getInstance() {
@@ -70,7 +73,14 @@ public class ShareService {
             Share share = new Share(images.get(name));
             share.setImageMatrix(images.get(name));
             shares.add(share);
+
+            if(name.startsWith("share_")) {
+                int index = Integer.parseInt(name.substring(6,name.length()-4));
+                imageIndexes.add(index);
+            }
         }
+
+        Collections.sort(imageIndexes);
     }
 
     private Image convertToFxImage(BufferedImage bufferedImage) {
@@ -80,7 +90,7 @@ public class ShareService {
     public void decryptSecret(){
         createOrderedShareList();
 
-        BufferedImage secretBuffered = secret.getSecretImage(this.width,this.height,shares);
+        BufferedImage secretBuffered = secret.getSecretImage(this.width,this.height,shares,imageIndexes);
         Image secretImage = this.convertToFxImage(secretBuffered);
 
         List<Image> secretFx = new ArrayList<>();
