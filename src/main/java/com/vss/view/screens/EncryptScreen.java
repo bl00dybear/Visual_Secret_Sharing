@@ -177,7 +177,9 @@ public class EncryptScreen implements ImageProcessingObserver {
 
         Button decryptButton = UIComponents.createButton("Decrypt",event -> encryptController.handleDecrypt());
 
-        HBox controls = new HBox(20, saveButton, clearButton,decryptButton);
+        Button menuButton = UIComponents.createButton("Menu",event -> interfaceManager.showMainScreen());
+
+        HBox controls = new HBox(20, saveButton, clearButton,decryptButton,menuButton);
         controls.setAlignment(Pos.CENTER);
 
         return controls;
