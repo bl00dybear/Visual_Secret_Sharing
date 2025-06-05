@@ -135,4 +135,43 @@ public class AuthService {
         }
     }
 
+    public boolean updatePassword(String oldPassword, String newPassword) {
+    String checkSql = "SELECT password FROM users WHERE username = ?";
+    String updateSql = "UPDATE users SET password = ? WHERE username = ?";
+    String logSql = "INSERT INTO activity_log (username, action, action_timestamp) VALUES (?, ?, ?)";
+
+    try (Connection conn = DatabaseService.getConnection();
+         PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+         PreparedStatement updateStmt = conn.prepareStatement(updateSql);
+         PreparedStatement logStmt = conn.prepareStatement(logSql)) {
+
+        checkStmt.setString(1, this.username);
+        ResultSet rs = checkStmt.executeQuery();
+        
+        if (!rs.next() || !rs.getString("password").equals(hashPasswordSHA256(oldPassword))) {
+            logStmt.setString(1, this.username);
+            logStmt.setString(2, "password update failed - wrong old password");
+            logStmt.setTimestamp(3, new java.sql.Timestamp(System.currentTimeMillis()));
+            logStmt.executeUpdate();
+            return false;
+        }
+
+        String hashedNewPassword = hashPasswordSHA256(newPassword);
+        updateStmt.setString(1, hashedNewPassword);
+        updateStmt.setString(2, this.username);
+        updateStmt.executeUpdate();
+
+        logStmt.setString(1, this.username);
+        logStmt.setString(2, "password updated successfully");
+        logStmt.setTimestamp(3, new java.sql.Timestamp(System.currentTimeMillis()));
+        logStmt.executeUpdate();
+
+        return true;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
 }

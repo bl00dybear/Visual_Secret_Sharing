@@ -9,6 +9,7 @@ import main.java.com.vss.view.screens.DecryptScreen;
 import main.java.com.vss.view.screens.EncryptScreen;
 import main.java.com.vss.view.screens.LoginScreen;
 import main.java.com.vss.view.screens.MainScreen;
+import main.java.com.vss.view.screens.UpdatePasswordScreen;
 
 public class InterfaceManager {
     private final Stage primaryStage;
@@ -46,4 +47,12 @@ public class InterfaceManager {
         Scene scene = new Scene(decryptScreen.getRoot());
         primaryStage.setScene(scene);
     }
+
+
+        public void showUpdatePasswordScreen() {
+        UpdatePasswordScreen updatePasswordScreen = new UpdatePasswordScreen(this, authController);
+        Scene scene = new Scene(updatePasswordScreen.getRoot());
+        primaryStage.setScene(scene);
+    }
+    
 }

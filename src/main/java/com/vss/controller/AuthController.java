@@ -34,4 +34,13 @@ public class AuthController {
         authService.deleteAccount();
         interfaceManager.showLoginScreen();
     }
+
+    public boolean updatePassword(String oldPassword, String newPassword) {
+    if (oldPassword == null || newPassword == null || 
+        oldPassword.isEmpty() || newPassword.isEmpty()) {
+        return false;
+    }
+    
+    return authService.updatePassword(oldPassword, newPassword);
+}
 }

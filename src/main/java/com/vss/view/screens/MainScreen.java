@@ -57,11 +57,12 @@ public class MainScreen {
     private VBox createButtonPanel() {
         Button encryptButton = UIComponents.createButton("Encrypt", event -> handleEncrypt());
         Button decryptButton = UIComponents.createButton("Decrypt", event -> handleDecrypt());
+        Button updatePasswordButton = UIComponents.createButton("Update Password", event -> interfaceManager.showUpdatePasswordScreen());
         Button logoutButton = UIComponents.createButton("Logout", event -> interfaceManager.showLoginScreen());
         Button deleteAccButton = UIComponents.createButton("Delete Account", event -> authController.deleteAccount());
         Button exitButton = UIComponents.createButton("Exit", event -> System.exit(0));
 
-        VBox buttonContainer = new VBox(10, encryptButton, decryptButton, logoutButton, deleteAccButton, exitButton);
+        VBox buttonContainer = new VBox(10, encryptButton, decryptButton, updatePasswordButton,logoutButton, deleteAccButton, exitButton);
         buttonContainer.setAlignment(Pos.CENTER);
 
         buttonContainer.setPadding(new Insets(20));
