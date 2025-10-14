@@ -40,7 +40,8 @@ Goal: Split a secret S into n parts (shares) so that any k shares reconstruct S,
   ```math
   F_p.
   ```
-- For i = 1..n, issue share (x_i, f(x_i)) with distinct non-zero x_i.
+- For i = 1..n, issue share (x_i, f(x_i)) with distinct non-zero
+- $$x_i$$.
 
 Reconstruction uses Lagrange interpolation with any k points:
 ```math
