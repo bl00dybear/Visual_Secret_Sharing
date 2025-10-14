@@ -38,9 +38,9 @@ Goal: Split a secret S into n parts (shares) so that any k shares reconstruct S,
 - For i = 1..n, issue share (x_i, f(x_i)) with distinct non-zero x_i.
 
 Reconstruction uses Lagrange interpolation with any k points:
-$$
+```math
 s = f(0) = \sum_{j=1}^{k} y_j \cdot \prod_{\substack{m=1\\m\neq j}}^{k}\frac{-x_m}{x_j-x_m} \ (\bmod\ p).
-$$
+```
 
 Properties:
 - Information-theoretic secrecy for any subset of size < k.
