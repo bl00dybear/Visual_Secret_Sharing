@@ -31,7 +31,7 @@ Note: Application code is Java/JavaFX. The database is only used for user/auth f
 
 Goal: Split a secret S into n parts (shares) so that any k shares reconstruct S, while any set with fewer than k shares reveals nothing.
 
-- Choose a prime field F_p with sufficiently large p.
+- Choose a prime field $$F_p$$ with sufficiently large p.
 - Sample a random polynomial of degree k−1:
   ```math
   f(x) = s + a_1x + a_2x^2 + \dots + a_{k-1}x^{k-1} \pmod p,
@@ -40,8 +40,7 @@ Goal: Split a secret S into n parts (shares) so that any k shares reconstruct S,
   ```math
   F_p.
   ```
-- For i = 1..n, issue share (x_i, f(x_i)) with distinct non-zero
-- $$x_i$$.
+- For i = 1..n, issue share (x_i, f(x_i)) with distinct non-zero $$x_i$$.
 
 Reconstruction uses Lagrange interpolation with any k points:
 ```math
