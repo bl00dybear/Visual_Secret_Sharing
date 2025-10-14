@@ -36,7 +36,8 @@ Goal: Split a secret S into n parts (shares) so that any k shares reconstruct S,
   ```math
   f(x) = s + a_1x + a_2x^2 + \dots + a_{k-1}x^{k-1} \pmod p,
   ```
-  where s ∈ F_p is the secret and a_i are uniform in ```math
+  where s ∈ F_p is the secret and a_i are uniform in
+  ```math
   F_p.
   ```
 - For i = 1..n, issue share (x_i, f(x_i)) with distinct non-zero x_i.
